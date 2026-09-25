@@ -20,6 +20,37 @@ Fundamentos em arquitetura de software/
 ├── 08 Gerenciamento de riscos.md
 └── 09 Devops.md
 ```
+```text
+Requisitos arquiteturais/
+├── 01 Introducao.md
+├── 02 MVP.md
+└── 03 Metodologia na construcao do software.md
+```
+
+```text
+03 Design patterns, estilos e padroes arquiteturais/
+├── 01 Introducao_2.md
+├── 02 Gof Catalogo de padrões.md
+├── 03 GoF - padrões de criação.md
+├── 04 Gof padroes estruturais.md
+├── 05 Code smells.md
+├── 06 Padrões Arquiteturais.md
+├── 07 Arquiteturas em camadas.md
+├── 08 Padrões para sistemas distribuidos.md
+└── 09 Arquitetura para sistemas distribuidos.md
+```
+
+
+```text
+04 Arquiteturas da atualidade/
+├── 01 Api Rest.md
+├── 02 Api GraphQl.md
+├── 03 Arquitetura orientada a eventos.md
+├── 04 Desenvolvimento móvel.md
+├── 05 Arquiteturas cloud e serverless.md
+├── 06 Ferramentas.md
+```
+
 
 Conteúdos relacionados aos fundamentos da arquitetura de software, conceitos arquiteturais, princípios, padrões e decisões que servem como base para a construção de sistemas mais organizados, sustentáveis e escaláveis.
 
