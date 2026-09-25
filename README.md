@@ -25,9 +25,7 @@ O conteúdo está organizado por módulos, acompanhando a evolução dos assunto
 ├── 01 Introducao.md
 ├── 02 MVP.md
 └── 03 Metodologia na construcao do software.md
-```
 
-```text
 03 Design patterns, estilos e padroes arquiteturais/
 ├── 01 Introducao_2.md
 ├── 02 Gof Catalogo de padrões.md
@@ -38,10 +36,7 @@ O conteúdo está organizado por módulos, acompanhando a evolução dos assunto
 ├── 07 Arquiteturas em camadas.md
 ├── 08 Padrões para sistemas distribuidos.md
 └── 09 Arquitetura para sistemas distribuidos.md
-```
 
-
-```text
 04 Arquiteturas da atualidade/
 ├── 01 Api Rest.md
 ├── 02 Api GraphQl.md
