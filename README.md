@@ -19,8 +19,7 @@ O conteúdo está organizado por módulos, acompanhando a evolução dos assunto
 ├── 07 Conduzindo um processo decisorio.md
 ├── 08 Gerenciamento de riscos.md
 └── 09 Devops.md
-```
-```text
+
 02 Requisitos arquiteturais/
 ├── 01 Introducao.md
 ├── 02 MVP.md
