@@ -9,7 +9,7 @@ O conteúdo está organizado por módulos, acompanhando a evolução dos assunto
 ### Módulo 1 — Fundamentos de Arquitetura
 
 ```text
-Fundamentos em arquitetura de software/
+01 Fundamentos em arquitetura de software/
 ├── 01 Introducao.md
 ├── 02 Principios Solid.md
 ├── 03 Trade-Offs Arquiteturais.md
@@ -21,7 +21,7 @@ Fundamentos em arquitetura de software/
 └── 09 Devops.md
 ```
 ```text
-Requisitos arquiteturais/
+02 Requisitos arquiteturais/
 ├── 01 Introducao.md
 ├── 02 MVP.md
 └── 03 Metodologia na construcao do software.md
