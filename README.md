@@ -6,7 +6,7 @@ O conteúdo está organizado por módulos, acompanhando a evolução dos assunto
 
 ## Estrutura
 
-### Módulo 1 — Fundamentos de Arquitetura
+### Arquiteto de Software
 
 ```text
 01 Fundamentos em arquitetura de software/
