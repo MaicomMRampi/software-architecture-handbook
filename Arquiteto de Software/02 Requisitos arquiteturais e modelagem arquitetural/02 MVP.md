@@ -1,49 +1,123 @@
-# 📖 Arquitetura Mínima Viável (MVA) no Módulo 2
+# 🚚 MVP e Arquitetura Mínima Viável (MVA)
 
-## 🎯 1. O Conceito de MVP e MVA
-
-No desenvolvimento moderno de produtos digitais, o tempo de lançamento (*Time-to-Market*) é vital para testar hipóteses de negócio.
-
-* **MVP (Produto Mínimo Viável):** Versão enxuta de um produto criada com o objetivo de validar uma hipótese de negócio com usuários reais, investindo o mínimo de tempo e recursos.
-* **MVA (Arquitetura Mínima Viável):** Estrutura técnica mínima, flexível e sustentável construída para suportar as operações do MVP sem desperdício de infraestrutura ou sobrecarga cognitiva.
+> **Módulo 02 · Requisitos** — Como desenhar a arquitetura de um MVP: nem gambiarra, nem overengineering.
 
 ---
 
-## ⚖️ 2. O Dilema da Arquitetura em MVPs
+## 1. Conceitos
 
-O papel do arquiteto ao desenhar um MVP é encontrar o ponto de equilíbrio entre a velocidade de entrega e a sustentabilidade técnica do software:
+- **MVP (Minimum Viable Product):** versão enxuta do produto para **validar uma hipótese de negócio** com usuários reais, com o mínimo de tempo e recursos. Ciclo do *Lean Startup*: **Construir → Medir → Aprender**.
+- **MVA (Minimum Viable Architecture):** estrutura técnica **mínima, flexível e sustentável** que suporta o MVP sem desperdício, mas sem fechar portas para evoluir.
+
+> O MVP **não** é "um produto mal feito": é o menor produto que gera **aprendizado validado**. Ex.: o primeiro Dropbox foi um vídeo demonstrando a ideia; a primeira Zappos comprava sapatos em lojas depois que o cliente pedia no site.
+
+### Variações
+
+| Termo | Ideia |
+|---|---|
+| **MVP** | Mínimo para validar a hipótese |
+| **MLP** (*Minimum Lovable Product*) | Mínimo que o usuário **goste** de usar |
+| **MMP** (*Minimum Marketable Product*) | Mínimo que pode ser **vendido** |
+| **PoC** | Prova técnica de que algo é possível (não vai para usuário) |
+| **Protótipo** | Simulação da experiência (ex.: Figma) |
+
+---
+
+## 2. O dilema da arquitetura em MVPs
 
 ```mermaid
 graph LR
-    A[Gambiarra Sem Estrutura] <--> B[MVA - Arquitetura Mínima Viável] <--> C[Overengineering Complexo]
-    
-    A -->|Risco| A1[Código Insustentável e Inescalável]
-    B -->|Ideal| B1[Evolutiva, Simples e Rápida]
-    C -->|Risco| C1[Custo Elevado e Atraso de Lançamento]
+    A[Gambiarra] <--> B[MVA] <--> C[Overengineering]
+    A --> A1[Insustentável, não escala]
+    B --> B1[Simples, rápida e evolutiva]
+    C --> C1[Cara e atrasa o lançamento]
 ```
-| Abordagem | Características | Quando Ocorre | Impacto no Projeto |
-| --- | --- | --- | --- |
-| **Sub-Dimensionada** | Ausência de padrões, sem testes e sem separação de camadas. | Pressão extrema por prazos curtos. | Impossibilidade de escalar ou refatorar o MVP se for aprovado. |
-| **Overengineering** | Microsserviços, Kubernetes e múltiplos bancos de dados para 100 usuários. | Ansiedade de arquitetar para escala de Big Techs antecipadamente. | Custo financeiro alto, lentidão de desenvolvimento e complexidade desnecessária. |
-| **MVA (Ideal)** | Monólito modular, desacoplado, com pipeline de CI/CD simples e banco relacional. | Foco nos ASRs atuais, mantendo portas abertas para evolução. | Lançamento rápido e código preparado para crescer de forma orgânica. |
 
-# 🔍 4. MVA no Contexto de Requisitos
+| Abordagem | Características | Quando ocorre | Impacto |
+|---|---|---|---|
+| **Subdimensionada** | Sem padrões, sem testes, sem camadas | Pressão extrema por prazo | Se o MVP der certo, é preciso reescrever tudo |
+| **Overengineering** | Microsserviços, Kubernetes e vários bancos para 100 usuários | Ansiedade de escalar como Big Tech | Custo alto, lentidão, complexidade |
+| **MVA (ideal)** | Monólito modular, CI/CD simples, banco relacional, serviços gerenciados | Foco nos ASRs atuais | Lança rápido e cresce de forma orgânica |
 
-Durante a fase de elicitação e análise de requisitos para um MVP, a MVA define o conjunto mínimo de Atributos de Qualidade a serem atendidos:
+> **YAGNI** (*You Aren't Gonna Need It*): não construa hoje o que ainda não é necessário. Mas deixe **pontos de extensão** (interfaces, módulos bem delimitados) para quando for.
 
-1. Foco em Segurança Básica: Autenticação e proteção de dados (LGPD) já devem nascer com o MVP.
+---
 
-2. Foco em Observabilidade Simplificada: Centralização básica de logs e alertas simples de disponibilidade.
+## 3. Princípios da MVA
 
-3. Adiar Desempenho Extremo: Em vez de estruturas complexas de caching distribuído, utilize otimizações simples de consultas SQL até validar a carga real de acessos.
+1. **Foque nos ASRs atuais**, não nos imaginados para daqui a 5 anos;
+2. **Decisões reversíveis primeiro**; adie as irreversíveis até ter dados (*last responsible moment*);
+3. **Use serviços gerenciados/PaaS/SaaS** (autenticação, banco, filas) em vez de construir;
+4. **Modularize** o monólito para permitir extrair serviços depois;
+5. **Registre as decisões e a dívida técnica assumida** (ADRs), para pagá-la conscientemente;
+6. **Meça**: o MVP existe para aprender, então observabilidade e analytics são parte da MVA.
 
-# 🚗 Analogia
+### O mínimo que já nasce com o MVP
 
-🚚 O Food Truck como MVA de um Restaurante
-MVP (Negócio): Vender um tipo específico de hambúrguer artesanal para testar se a receita agrada o público da cidade antes de alugar um imóvel comercial de luxo.
+- **Segurança básica:** autenticação, HTTPS, proteção de dados pessoais (LGPD);
+- **Observabilidade simplificada:** logs centralizados, alertas de disponibilidade, métricas de uso;
+- **Pipeline CI/CD simples** e ambientes reproduzíveis (Docker);
+- **Backup** do banco.
 
-Sub-dimensionado (Gambiarra): Vender o hambúrguer em uma mesa dobrável na rua, sem higiene, sem gerador e sem caixa. Se chover ou a demanda subir, a operação colapsa instantaneamente.
+### O que pode esperar
 
-Overengineering: Comprar um galpão industrial com cozinha de última geração de R$ 2 milhões e contratar 10 chefs antes de vender o primeiro sanduíche.
+- Desempenho extremo (cache distribuído, sharding) → otimize consultas SQL até ter carga real;
+- Multi-região, alta disponibilidade avançada;
+- Microsserviços.
 
-MVA (Arquitetura Mínima Viável): Adaptar uma van simples com chapa, geladeira funcional e máquina de cartão. A estrutura suporta a operação perfeitamente, atende às normas sanitárias essenciais e, se a receita for um sucesso, a cozinha pode ser migrada para um restaurante fixo sem perda de capital.
+### Exemplo de stack MVA
+
+```text
+Front (Next.js na Vercel)
+      ↓
+Monólito modular (Node/NestJS em container no Render / App Runner)
+  ├── módulo usuarios
+  ├── módulo pedidos
+  └── módulo pagamentos → Stripe / Mercado Pago (SaaS)
+      ↓
+PostgreSQL gerenciado (RDS / Supabase)  +  Auth gerenciado (Auth0 / Cognito)
+Logs: serviço gerenciado · CI/CD: GitHub Actions
+```
+
+---
+
+## 4. Analogia — Food truck
+
+- **MVP:** vender um hambúrguer artesanal para testar se a receita agrada antes de alugar um restaurante.
+- **Gambiarra:** mesa dobrável na rua, sem higiene nem caixa — chove ou a demanda sobe e tudo colapsa.
+- **Overengineering:** galpão industrial de R$ 2 milhões e 10 chefs antes de vender o primeiro sanduíche.
+- **MVA:** van adaptada com chapa, geladeira e maquininha de cartão. Atende as normas, funciona bem e, se der certo, a operação migra para um restaurante fixo.
+
+---
+
+## ✅ Pontos-chave
+
+- MVP valida **hipótese de negócio**; MVA é a arquitetura **mínima e evolutiva** que o sustenta.
+- Evite os dois extremos: gambiarra e overengineering.
+- Use serviços gerenciados, monólito modular e decisões reversíveis.
+- Segurança básica e observabilidade **não** são opcionais nem no MVP.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Qual a diferença entre MVP e PoC?</summary>
+MVP é um produto mínimo para validar hipótese de negócio com usuários reais; PoC prova que algo é tecnicamente viável, sem foco em usuário final.
+</details>
+
+<details><summary>2. Por que microsserviços costumam ser má escolha para um MVP?</summary>
+Adicionam custo e complexidade operacional enquanto o domínio ainda é incerto; fronteiras erradas entre serviços são caras de corrigir. Um monólito modular entrega mais rápido e permite extração futura.
+</details>
+
+<details><summary>3. O que é o "último momento responsável"?</summary>
+Adiar decisões irreversíveis até o ponto em que adiar mais causaria prejuízo, para decidir com o máximo de informação.
+</details>
+
+## 🔗 Relacionadas
+
+- [01 Requisitos arquiteturais](01%20Introducao.md)
+- [Estilo monolítico e monólito modular](../01%20Fundamentos%20em%20arquitetura%20de%20software/05%20Estilo%20arquitetural%20monolitico.md)
+- [Projeto final — módulo 1](../projeto_final_pos_mod_1/README.md)
+
+## 📚 Referências
+
+- RIES, E. *A Startup Enxuta*. Leya, 2012.
+- ERDER, M.; PUREUR, P. *Continuous Architecture in Practice*. Addison-Wesley, 2021.

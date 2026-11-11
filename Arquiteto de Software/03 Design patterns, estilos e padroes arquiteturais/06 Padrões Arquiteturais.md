@@ -1,4 +1,6 @@
-# Padrões Arquiteturais
+# 🖼️ Padrões Arquiteturais de Apresentação: MVC, MVP e MVVM
+
+> **Módulo 03 · Design Patterns** — Três formas de separar interface, dados e lógica de apresentação, e quando usar cada uma.
 
 Os padrões arquiteturais são formas de organizar a estrutura de uma aplicação.
 
@@ -492,3 +494,45 @@ Os três padrões tentam resolver um problema parecido:
 A diferença está principalmente em **como essa comunicação e essa responsabilidade são organizadas**.
 
 ---
+
+## Onde aparecem na prática
+
+| Padrão | Frameworks / plataformas |
+|---|---|
+| **MVC** | Ruby on Rails, Django (MTV), Spring MVC, ASP.NET MVC, Laravel, Express com template engine |
+| **MVP** | Android clássico (antes do Jetpack), Windows Forms, GWT |
+| **MVVM** | Angular, Vue, WPF/.NET MAUI, Android Jetpack (ViewModel + LiveData/Flow), SwiftUI |
+
+> Em APIs REST (como o [projeto final](../projeto_final_pos_mod_1/README.md)), o "V" do MVC é a resposta JSON: `routes → controller → service → model`.
+
+---
+
+## ✅ Pontos-chave
+
+- Os três separam **dados (Model)**, **interface (View)** e **lógica de apresentação**.
+- **MVC:** Controller recebe a entrada e escolhe a View; comum em aplicações web server-side.
+- **MVP:** Presenter faz toda a mediação; View passiva, fácil de testar.
+- **MVVM:** ViewModel expõe estado; a View se atualiza via **data binding**.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Qual a principal diferença entre MVP e MVVM?</summary>
+No MVP, o Presenter atualiza a View explicitamente por uma interface; no MVVM, a View observa o ViewModel e é atualizada automaticamente via data binding.
+</details>
+
+<details><summary>2. Por que MVP facilita testes?</summary>
+Porque a View é passiva e acessada por uma interface; o Presenter pode ser testado com uma View falsa (mock), sem interface gráfica.
+</details>
+
+<details><summary>3. Cite um framework que segue MVVM.</summary>
+Angular, Vue, WPF ou Android Jetpack.
+</details>
+
+## 🔗 Relacionadas
+
+- [07 Arquiteturas em camadas](07%20Arquiteturas%20em%20camadas.md)
+- [Estilo monolítico em camadas](../01%20Fundamentos%20em%20arquitetura%20de%20software/05%20Estilo%20arquitetural%20monolitico.md)
+
+## 📚 Referências
+
+- FOWLER, M. *GUI Architectures*. https://martinfowler.com/eaaDev/uiArchs.html

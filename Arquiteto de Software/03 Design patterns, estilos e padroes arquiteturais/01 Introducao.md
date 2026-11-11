@@ -1,4 +1,6 @@
-# Software Architecture Handbook
+# 🧭 Introdução: Arquitetura, Design e Qualidade de Software
+
+> **Módulo 03 · Design Patterns** — Arquitetura × design, atributos de qualidade (ISO 25010), papel do arquiteto e as práticas de código que sustentam uma boa arquitetura.
 
 ---
 
@@ -108,3 +110,85 @@ Conjunto de cinco princípios de design orientado a objetos que auxiliam na cons
 * **D — Dependency Inversion Principle**
 
 ---
+
+## Complementos
+
+### ISO/IEC 25010 — modelo de qualidade de produto
+
+Os atributos listados acima vêm do modelo **ISO/IEC 25010**, que organiza a qualidade em características: adequação funcional, eficiência de desempenho, compatibilidade, usabilidade, confiabilidade, segurança, manutenibilidade e portabilidade. A manutenibilidade, por exemplo, se divide em **modularidade, reusabilidade, analisabilidade, modificabilidade e testabilidade**.
+
+### Object Calisthenics — as 9 regras (Jeff Bay)
+
+1. Apenas um nível de indentação por método;
+2. Não use `else`;
+3. Encapsule tipos primitivos e strings (ex.: `Cpf`, `Email` em vez de `string`);
+4. Coleções de primeira classe (uma classe que só encapsula a coleção);
+5. Um ponto por linha (Lei de Demeter: `a.b().c().d()` é um alerta);
+6. Não abrevie nomes;
+7. Mantenha entidades pequenas (classes ~50 linhas, pacotes ~10 arquivos);
+8. No máximo duas variáveis de instância por classe;
+9. Sem getters/setters/propriedades públicas — "diga, não pergunte" (*Tell, Don't Ask*).
+
+São exercícios, não leis: o objetivo é treinar coesão e encapsulamento.
+
+### TDD na prática
+
+```text
+🔴 Red      → escreva um teste que falha para o próximo comportamento
+🟢 Green    → escreva o mínimo de código para o teste passar
+🔵 Refactor → melhore o design mantendo os testes verdes
+```
+
+```js
+// 1. Red
+test('aplica 10% de desconto acima de R$ 100', () => {
+  expect(calcularTotal(200)).toBe(180);
+});
+// 2. Green
+const calcularTotal = (v) => (v > 100 ? v * 0.9 : v);
+// 3. Refactor: extrair constantes, nomear regras...
+```
+
+**Pirâmide de testes:** muitos testes unitários (rápidos), menos de integração e poucos end-to-end (lentos e frágeis).
+
+### Análise estática
+
+Ferramentas: **ESLint** (JS/TS), **SonarQube/SonarCloud** (bugs, vulnerabilidades, code smells, duplicação, cobertura), **Checkstyle/PMD** (Java). Métricas comuns: complexidade ciclomática, complexidade cognitiva, duplicação, dívida técnica estimada. Integradas ao CI, funcionam como **quality gates**.
+
+---
+
+## ✅ Pontos-chave
+
+- Arquitetura organiza a complexidade para permitir **evolução controlada**.
+- Qualidade de software é descrita por atributos (ISO 25010): confiabilidade, desempenho, segurança, manutenibilidade…
+- Clean Code, SOLID, padrões, TDD, Object Calisthenics e análise estática sustentam a arquitetura no nível do código.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Quais são as três etapas do ciclo do TDD?</summary>
+Red (teste falhando), Green (código mínimo para passar) e Refactor (melhorar o design com os testes verdes).
+</details>
+
+<details><summary>2. Qual a diferença entre code smell e bug?</summary>
+Bug é um comportamento incorreto; code smell é um indício de problema de design que dificulta manutenção, mesmo com o código funcionando.
+</details>
+
+<details><summary>3. Cite três regras do Object Calisthenics.</summary>
+Um nível de indentação por método; não usar else; encapsular primitivos (também: um ponto por linha, não abreviar, entidades pequenas…).
+</details>
+
+<details><summary>4. O que a análise estática consegue detectar sem executar o código?</summary>
+Violações de padrão, possíveis bugs, vulnerabilidades, duplicação, complexidade excessiva e code smells.
+</details>
+
+## 🔗 Relacionadas
+
+- [02 GoF — catálogo de padrões](02%20GoF%20catalogo%20de%20padroes.md)
+- [05 Code smells](05%20Code%20smells.md)
+- [Princípios SOLID](../01%20Fundamentos%20em%20arquitetura%20de%20software/02%20Principios%20Solid.md)
+
+## 📚 Referências
+
+- MARTIN, R. C. *Código Limpo*. Alta Books, 2009.
+- BECK, K. *TDD — Desenvolvimento Guiado por Testes*. Bookman, 2010.
+- ISO/IEC 25010:2023 — *Product quality model*.

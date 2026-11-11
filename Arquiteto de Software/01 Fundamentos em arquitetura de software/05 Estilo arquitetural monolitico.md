@@ -1,180 +1,245 @@
-# 📖 Estilos Arquiteturais: Monólitos e Arquitetura em Camadas
+# 🏢 Estilos Arquiteturais Monolíticos
 
-## 🏢 1. Sistemas Monolíticos
+> **Módulo 01 · Fundamentos** — Estilos em que o sistema é implantado como uma única unidade: monólito tradicional, monólito modular, camadas, pipes and filters e microkernel.
 
-### 🎯 Conceito Detalhado
-A **Arquitetura Monolítica** é uma abordagem onde todos os módulos e componentes funcionais de um software (interface, lógica de negócio e acesso a dados) estão contidos em um único código-fonte e são implantados (*deployed*) como um **único artefato executável**.
+---
+
+## 1. Sistemas monolíticos
+
+### Conceito
+
+Na **arquitetura monolítica**, todos os módulos (interface, lógica de negócio e acesso a dados) ficam em **um único código-fonte** e são implantados como **um único artefato executável** (um `.jar`, um processo Node, uma imagem Docker).
 
 ```mermaid
 graph TD
     A[Interface / API] --> B[Lógica de Negócio]
     B --> C[Acesso a Dados]
     C --> D[(Banco de Dados)]
-    style A fill:#f9f,stroke:#333
-    style B fill:#bbf,stroke:#333
-    style C fill:#dfd,stroke:#333
-
 ```
-⚖️ Vantagens e Desvantagens
-Vantagens:
 
-Desenvolvimento e Teste Simplificados: Execução local simples e depuração (debug) centralizada.
+> ⚠️ "Monolito" não é sinônimo de "código ruim". Um monólito bem modularizado é a escolha certa para muitos produtos, principalmente no início. O problema é o **monólito desorganizado** (*big ball of mud*).
 
-Deploy Inicial Descomplicado: Envio de apenas um pacote executável ao ambiente de produção.
+### Vantagens
 
-Baixa Latência Interna: Chamadas de método ocorrem em memória, sem depender da rede.
+- **Desenvolvimento e testes simples:** roda localmente com um comando; debug centralizado.
+- **Deploy inicial descomplicado:** um único pacote vai para produção.
+- **Baixa latência interna:** chamadas entre módulos são em memória, sem rede.
+- **Transações ACID locais:** um único banco garante consistência forte facilmente.
+- **Custo operacional baixo:** menos infraestrutura e observabilidade para manter.
 
-Desvantagens:
+### Desvantagens
 
-Escalabilidade Ineficiente: Exige duplicar a instância da aplicação inteira para suportar carga em um único módulo.
+- **Escalabilidade ineficiente:** para aguentar carga em um módulo, é preciso replicar a aplicação inteira.
+- **Alto acoplamento:** mudar uma funcionalidade pode ter efeitos colaterais em partes não relacionadas.
+- **Deploys arriscados:** qualquer mudança exige redeploy e reinício do sistema inteiro.
+- **Tecnologia única:** difícil adotar outra linguagem ou banco para uma parte específica.
+- **Escala de times:** muitos desenvolvedores no mesmo código geram conflitos e lentidão.
 
-Alto Acoplamento: Mudar uma funcionalidade pode gerar efeitos colaterais em partes não relacionadas.
+### Monólito modular
 
-Ciclos de Deploy Arriscados: Qualquer atualização exige o redeploy e a reinicialização do sistema inteiro.
+Meio-termo muito usado hoje: um único deploy, mas internamente dividido em **módulos de negócio isolados** (ex.: `pedidos`, `pagamentos`, `catalogo`), cada um com sua API interna e, de preferência, seu próprio esquema no banco.
 
-## 🥞 2. Arquitetura em Camadas (Layered Architecture)
-🎯 Conceito
-A Arquitetura em Camadas divide o sistema em níveis horizontais de responsabilidade (Separation of Concerns). Cada nível isola um papel específico da aplicação e consome apenas a camada imediatamente abaixo.
+```text
+app/
+├── modules/
+│   ├── pedidos/      (domain, application, infra) → expõe PedidosFacade
+│   ├── pagamentos/   (domain, application, infra) → expõe PagamentosFacade
+│   └── catalogo/
+└── shared/
+```
+
+Benefícios: mantém a simplicidade operacional do monólito e facilita uma futura extração para microsserviços (cada módulo já tem fronteira clara). Exemplo conhecido: Shopify.
+
+---
+
+## 2. Arquitetura em camadas (Layered Architecture)
+
+### Conceito
+
+Divide o sistema em **níveis horizontais de responsabilidade** (*separation of concerns*). Cada camada tem um papel e consome apenas a camada imediatamente abaixo.
 
 ```mermaid
 graph TD
-    UI[Apresentação / Presentation Layer] --> SVC[Serviços e Negócio / Service Layer]
-    SVC --> DAT[Persistência de Dados / Data Layer]
+    UI[Apresentação - Controllers] --> SVC[Negócio - Services]
+    SVC --> DAT[Persistência - Repositories / ORM]
     DAT --> DB[(Banco de Dados)]
 ```
-🧱 Estrutura das Camadas
-Presentation Layer (Apresentação): Interage com o usuário ou expõe as rotas HTTP da API (Controllers).
 
-Service / Business Logic Layer (Serviços e Negócio): Executa as validações, regras de negócio e fluxos da aplicação.
+| Camada | Responsabilidade | Exemplos |
+|---|---|---|
+| **Apresentação** | Interagir com o usuário ou expor rotas HTTP | Controllers, views |
+| **Negócio (Service)** | Validações, regras de negócio, fluxos | Services, use cases |
+| **Persistência** | Ler e gravar dados | Repositories, ORMs (Prisma, Mongoose) |
+| **Banco de dados** | Armazenamento | PostgreSQL, MongoDB |
 
-Data / Persistence Layer (Dados e Persistência): Conecta ao banco de dados e executa operações de leitura e escrita (ORMs e Repositories).
+### Camadas fechadas × abertas
 
-⚖️ Vantagens e Desvantagens
+- **Fechada:** a requisição **deve** passar pela camada (não pode pular). Garante isolamento.
+- **Aberta:** pode ser pulada (ex.: uma camada de serviços utilitários compartilhados).
 
-Vantagens:
+### Exemplo (Express — como no projeto final do módulo)
 
-Isolamento de Responsabilidades: Facilita manutenções ao garantir que cada camada foque apenas em seu papel.
+```js
+// routes → controller → service → model
+router.get('/products/:id', productController.getById);
 
-Reutilização de Regras: A camada de negócios pode servir múltiplos clientes (Aplicações Web, Mobile, Integrações).
+// controller: só HTTP
+async getById(req, res) {
+  const product = await productService.findById(req.params.id);
+  if (!product) return res.status(404).json({ message: 'Não encontrado' });
+  res.json(product);
+}
 
-Trabalho em Equipe: Desenvolvedores podem atuar em camadas distintas simultaneamente sem gerar conflitos diretos.
+// service: regra de negócio
+async findById(id) { return productModel.findById(id); }
+```
 
-Desvantagens:
+### Vantagens
 
-Efeito Sinkhole: Operações simples de leitura (CRUDs básicos) atravessam todas as camadas sem processar regras de negócio, gerando código repetitivo.
+- Isolamento de responsabilidades e manutenção facilitada;
+- Reutilização da camada de negócio por vários clientes (web, mobile, integrações);
+- Times podem trabalhar em camadas diferentes em paralelo;
+- Estilo amplamente conhecido — bom ponto de partida.
 
-Overhead de Desempenho: A conversão contínua de modelos entre camadas consome etapas adicionais de memória e CPU.
+### Desvantagens
 
-Implantação Acoplada: Na maioria das implementações, todas as camadas continuam empacotadas no mesmo executável.
+- **Antipadrão sinkhole (sumidouro):** requisições atravessam todas as camadas sem lógica nenhuma (CRUD puro). Regra prática **80/20**: se mais de ~20% das requisições forem sinkhole, avalie abrir camadas ou outro estilo.
+- **Overhead:** conversão de modelos (DTO ↔ entidade) entre camadas.
+- **Deploy acoplado:** continua sendo um único artefato.
+- **Mudanças atravessam todas as camadas:** uma feature nova costuma tocar controller, service e repository.
 
+---
 
-# 📖 Arquitetura Pipes and Filters
+## 3. Pipes and Filters
 
-## 🎯 Conceito Detalhado
-A **Arquitetura Pipes and Filters** (Tubos e Filtros) é um estilo estrutural voltado para o processamento sequencial de fluxos de dados. O sistema é dividido em pequenos componentes independentes de processamento (**Filtros**) conectados por canais de comunicação unidirecionais (**Pipes**).
+### Conceito
 
-Este estilo segue o princípio da fábrica: os dados são transformados gradualmente à medida que transitam por cada estágio do pipeline.
+Estilo para **processamento sequencial de fluxos de dados**. O sistema é dividido em componentes independentes (**filtros**) ligados por canais unidirecionais (**pipes**). O dado é transformado aos poucos, como numa linha de montagem.
 
 ```mermaid
 graph LR
-    Source[(Origem / Source)] --> Pipe1[Pipe]
-    Pipe1 --> Filter1[Filtro: Validar]
-    Filter1 --> Pipe2[Pipe]
-    Pipe2 --> Filter2[Filtro: Enriquecer]
-    Filter2 --> Pipe3[Pipe]
-    Pipe3 --> Filter3[Filtro: Transformar]
-    Filter3 --> Sink[(Destino / Sink)]
+    Source[(Source)] --> F1[Filtro: Validar] --> F2[Filtro: Enriquecer] --> F3[Filtro: Transformar] --> Sink[(Sink)]
 ```
-🧱 Componentes Fundamentais
-Filter (Filtro):
 
-Papel: Unidade autônoma de processamento.
+| Componente | Papel |
+|---|---|
+| **Filter** | Unidade autônoma: recebe dados, faz **uma** transformação (validar, limpar, enriquecer) e repassa. Sem estado global. |
+| **Pipe** | Canal que leva os dados de um filtro a outro, isolando-os. |
+| **Source** | Origem dos dados (arquivo, sensor IoT, fila). |
+| **Sink** | Destino final (banco, data warehouse, API). |
 
-Responsabilidade: Recebe o dado do pipe de entrada, realiza uma transformação pontual (filtra, limpa, valida ou enriquece) e envia o resultado para o pipe de saída. Não possui dependência do estado global da aplicação.
+Tipos de filtro: **produtor** (source), **transformador**, **testador** (descarta ou deixa passar) e **consumidor** (sink).
 
-Pipe (Tubo):
+### Exemplos reais
 
-Papel: Conector ou canal de transporte.
+- Pipes do shell Unix: `cat log.txt | grep ERROR | sort | uniq -c`
+- Pipelines de ETL / dados (Apache Beam, Spark), compiladores (léxico → sintático → semântico → código);
+- Streams em Node.js:
 
-Responsabilidade: Direciona o fluxo de dados entre os filtros, garantindo o isolamento entre eles.
+```js
+fs.createReadStream('vendas.csv')
+  .pipe(csvParser())        // filtro: parse
+  .pipe(validarLinha())     // filtro: valida
+  .pipe(converterMoeda())   // filtro: transforma
+  .pipe(salvarNoBanco());   // sink
+```
 
-Source e Sink (Origem e Destino):
+### Vantagens e desvantagens
 
-Source: Ponto de entrada gerador dos dados (ex: leitura de arquivos, sensores IoT, filas de mensagens).
+| Vantagens | Desvantagens |
+|---|---|
+| Filtros reutilizáveis e recombináveis | Overhead de parsing/serialização entre filtros |
+| Fácil testar cada filtro isolado | Tratamento de erro difícil (falha no meio da cadeia) |
+| Permite paralelismo/concorrência | Não serve para sistemas interativos |
 
-Sink: Ponto final onde o dado processado é armazenado ou consumido (ex: Banco de Dados, Data Warehouse, API externa).
+---
 
-⚖️ Vantagens e Desvantagens
-Vantagens:
+## 4. Microkernel (Arquitetura de plug-ins)
 
-Alta Reutilização: Filtros são totalmente desacoplados e podem ser recombinados para criar novos pipelines.
+### Conceito
 
-Alta Testabilidade: É simples criar testes isolados para a lógica de cada filtro.
-
-Processamento Paralelo: Permite que múltiplos filtros processem partes diferentes do fluxo simultaneamente (concorrência).
-
-Desvantagens:
-
-Overhead de Parsing: Constantes conversões e serializações de dados entre os filtros podem reduzir o desempenho.
-
-Complexidade no Tratamento de Erros: Exige estratégias cuidadosas para lidar com falhas parciais ocorridas no meio da execução da cadeia.
-
-# 📖 Arquitetura Microkernel (Plug-In Architecture)
-
-## 🎯 Conceito Detalhado
-A **Arquitetura Microkernel** (ou Arquitetura baseada em Plug-ins) é um estilo estrutural projetado para criar aplicações extensíveis e adaptáveis. O sistema é dividido em dois pilares fundamentais: um **Núcleo Central (Core System)** enxuto e múltiplos **Módulos Plug-in** independentes.
-
-O núcleo é responsável por manter a aplicação rodando e expor contratos/interfaces para que as funcionalidades adicionais sejam acopladas dinamicamente.
+Divide o sistema em um **núcleo central (core)** enxuto e **plug-ins** independentes. O núcleo mantém a aplicação rodando e expõe contratos para que funcionalidades extras sejam acopladas.
 
 ```mermaid
 graph TD
-    subgraph Core System [Núcleo Central]
-        CORE[Ciclo de Vida & Lógica Base]
-        REG[Gerenciador de Plug-ins]
+    subgraph Core [Núcleo Central]
+        CORE[Ciclo de vida e lógica base]
+        REG[Registro de plug-ins]
     end
-
-    REG -->|Interface / Contrato| PLUG_A[Plug-in A: Regras de Impostos]
-    REG -->|Interface / Contrato| PLUG_B[Plug-in B: Gateway Pagamento]
-    REG -->|Interface / Contrato| PLUG_C[Plug-in C: Exportação PDF]
+    REG -->|Contrato| A[Plug-in: Regras de impostos]
+    REG -->|Contrato| B[Plug-in: Gateway de pagamento]
+    REG -->|Contrato| C[Plug-in: Exportação PDF]
 ```
 
-### 🧱 Componentes Fundamentais
-Núcleo Central (Core System):
+| Componente | Responsabilidade |
+|---|---|
+| **Núcleo (core)** | Inicialização, funcionalidade mínima, ciclo de vida e registro dos plug-ins. Sem regras específicas. |
+| **Plug-ins** | Adicionam funcionalidades, telas, algoritmos ou integrações, usando os contratos do núcleo. |
+| **Contratos / Registry** | Padronizam a comunicação núcleo ↔ plug-in e sabem quais plug-ins existem. |
 
-Papel: Sistema base minimalista.
+### Exemplo simplificado
 
-Responsabilidade: Contém a inicialização do sistema, regras básicas de navegação, gerenciamento do ciclo de vida dos plug-ins e o registro de rotas/interfaces. Não deve conter regras de negócio complexas ou específicas.
+```ts
+interface CalculadoraFrete { regiao: string; calcular(peso: number): number; }
 
-Módulos Plug-in:
+class Registry {
+  private plugins = new Map<string, CalculadoraFrete>();
+  registrar(p: CalculadoraFrete) { this.plugins.set(p.regiao, p); }
+  obter(regiao: string) { return this.plugins.get(regiao); }
+}
 
-Papel: Componentes autônomos de funcionalidade.
+registry.registrar({ regiao: 'SUL', calcular: (p) => p * 1.2 });
+registry.registrar({ regiao: 'NORTE', calcular: (p) => p * 2.0 });
+```
 
-Responsabilidade: Adicionar capacidades, telas, algoritmos ou integrações extras ao sistema base, consumindo os contratos expostos pelo núcleo.
+### Vantagens e desvantagens
 
-Contratos / Interfaces:
+| Vantagens | Desvantagens |
+|---|---|
+| Alta extensibilidade sem tocar no núcleo (OCP) | Design do contrato exige muito cuidado |
+| Falhas isoladas nos plug-ins | Versionamento: mudar o núcleo pode quebrar plug-ins |
+| Times evoluem plug-ins em paralelo | Núcleo pode virar gargalo de escalabilidade |
 
-Papel: Camada de integração.
+**Exemplos reais:** VS Code, Eclipse, IntelliJ, navegadores (extensões), WordPress, sistemas de seguros/impostos com regras por região.
 
-Responsabilidade: Padronizar como o núcleo chama o plug-in e como o plug-in acessa os recursos do núcleo, garantindo o desacoplamento.
+---
 
-### ⚖️ Vantagens e Desvantagens
-Vantagens:
+## ✅ Pontos-chave
 
-Alta Extensibilidade e Flexibilidade: Permite adicionar ou remover recursos sem alterar a base de código do núcleo central.
+- Monólito = **um único deploy**. Simples e barato; difícil de escalar times e partes isoladas.
+- **Monólito modular** é um ótimo ponto de partida.
+- **Camadas:** separação horizontal; cuidado com o *sinkhole*.
+- **Pipes and filters:** processamento em sequência de dados.
+- **Microkernel:** núcleo mínimo + plug-ins, ideal para produtos customizáveis.
 
-Isolamento de Falhas: Erros ocorridos dentro de um plug-in podem ser isolados para evitar que a aplicação inteira pare de funcionar.
+## ❓ Perguntas de revisão
 
-Evolução Independente: Equipes distintas podem construir, testar e publicar plug-ins de forma paralela.
+<details><summary>1. O que é o antipadrão sinkhole?</summary>
+Quando as requisições passam por todas as camadas sem que nenhuma aplique lógica, só repassando dados. Se for muito frequente (>20%), a arquitetura em camadas pode não ser a melhor opção.
+</details>
 
-Desvantagens:
+<details><summary>2. Qual a diferença entre camada fechada e aberta?</summary>
+Camada fechada não pode ser pulada pela requisição; camada aberta pode. Camadas fechadas garantem isolamento de mudanças.
+</details>
 
-Complexidade no Design Inicial: Exige um design rigoroso da API/Interface interna que conectará os plug-ins ao núcleo.
+<details><summary>3. Em que tipo de problema Pipes and Filters se encaixa bem?</summary>
+Processamento sequencial de fluxos de dados: ETL, compiladores, processamento de logs, streams.
+</details>
 
-Desafio de Versionamento: Alterações na estrutura do núcleo podem quebrar a compatibilidade com plug-ins legados ou de terceiros.
+<details><summary>4. Cite um sistema real que usa microkernel.</summary>
+VS Code (extensões), navegadores web, Eclipse, WordPress.
+</details>
 
-### 💻 Exemplos Reais de Aplicação
-IDEs e Editores de Código: VS Code, Eclipse e IntelliJ (onde sintaxes de linguagens e ferramentas de depuração são carregadas via extensões).
+<details><summary>5. Por que começar com um monólito modular pode ser melhor que microsserviços?</summary>
+Mantém o custo operacional baixo e transações locais enquanto o domínio ainda está sendo entendido, e já cria fronteiras claras que facilitam extrair serviços no futuro.
+</details>
 
-Processamento de Regras de Negócio: Sistemas e-commerce onde cálculos de frete, regras tributárias e métodos de pagamento variam por região e são carregados como plug-ins.
+## 🔗 Relacionadas
 
-Navegadores Web: Google Chrome e Firefox (com o ecossistema de extensões de usuário).
+- [06 Estilos arquiteturais distribuídos](06%20Estilos%20arquiteturais%20distribuidos.md)
+- [Arquiteturas em camadas (Hexagonal, Clean)](../03%20Design%20patterns,%20estilos%20e%20padroes%20arquiteturais/07%20Arquiteturas%20em%20camadas.md)
+
+## 📚 Referências
+
+- RICHARDS, M.; FORD, N. *Fundamentals of Software Architecture*. O'Reilly, 2020 — caps. 10 a 12.
+- RICHARDS, M. *Software Architecture Patterns*. O'Reilly, 2015.

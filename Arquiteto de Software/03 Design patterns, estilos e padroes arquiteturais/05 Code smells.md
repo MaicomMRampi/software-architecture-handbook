@@ -1,4 +1,6 @@
-# Code Smells
+# 👃 Code Smells
+
+> **Módulo 03 · Design Patterns** — Sinais de problemas de design: as 5 categorias (Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers) e as refatorações que os resolvem.
 
 **Code Smells**, ou **"cheiros de código"**, são características presentes no código-fonte que indicam a possibilidade de existir um problema de design ou estrutura.
 
@@ -292,3 +294,122 @@ A principal pergunta ao identificar esse tipo de problema é:
 **"Este componente realmente deveria conhecer e depender de tudo isso?"**
 
 Se a resposta for não, existe uma possível oportunidade de **refatoração e redução de acoplamento**.
+
+---
+
+# As outras categorias de code smells
+
+O catálogo clássico (Martin Fowler, *Refactoring*; organizado por Mäntylä) divide os smells em **cinco categorias**. Acima vimos os **Couplers**; abaixo, as outras quatro.
+
+| Categoria | Problema central |
+|---|---|
+| **Bloaters** (inchados) | Código que cresceu demais |
+| **Object-Orientation Abusers** | Uso incorreto de orientação a objetos |
+| **Change Preventers** | Uma mudança exige alterar muitos lugares |
+| **Dispensables** | Código desnecessário |
+| **Couplers** | Acoplamento excessivo (visto acima) |
+
+## 1. Bloaters
+
+| Smell | Sinal | Refatoração |
+|---|---|---|
+| **Long Method** | Função com dezenas de linhas, comentários separando "blocos" | *Extract Method* |
+| **Large Class / God Class** | Classe que faz de tudo | *Extract Class*, aplicar SRP |
+| **Long Parameter List** | Mais de 3–4 parâmetros | *Introduce Parameter Object*, Builder |
+| **Primitive Obsession** | `string` para CPF, e-mail, dinheiro | *Replace Primitive with Object* (Value Objects) |
+| **Data Clumps** | Mesmo grupo de dados sempre junto (`rua, numero, cidade, cep`) | Criar classe `Endereco` |
+
+```js
+// ❌ Long Parameter List + Primitive Obsession
+criarUsuario('Ana', 'ana@x.com', '123.456.789-00', 'Rua A', 10, 'Porto Alegre', '90000-000');
+
+// ✅
+criarUsuario({ nome: 'Ana', email: new Email('ana@x.com'), cpf: new Cpf('123.456.789-00'), endereco });
+```
+
+## 2. Object-Orientation Abusers
+
+| Smell | Sinal | Refatoração |
+|---|---|---|
+| **Switch Statements** | `switch`/`if` por tipo repetido em vários lugares | Polimorfismo, **Strategy**, **State** |
+| **Refused Bequest** | Subclasse herda e ignora/sobrescreve métodos do pai | Trocar herança por composição (viola LSP) |
+| **Temporary Field** | Atributo só preenchido em certas situações | *Extract Class* |
+| **Alternative Classes with Different Interfaces** | Duas classes fazem o mesmo com nomes diferentes | Unificar interface, Adapter |
+
+```js
+// ❌ switch por tipo
+function calcularFrete(tipo, peso) {
+  switch (tipo) { case 'sedex': return peso * 3; case 'pac': return peso * 1.5; }
+}
+// ✅ Strategy
+const fretes = { sedex: (p) => p * 3, pac: (p) => p * 1.5 };
+```
+
+## 3. Change Preventers
+
+| Smell | Sinal | Refatoração |
+|---|---|---|
+| **Divergent Change** | **Uma classe** muda por **vários motivos** diferentes | *Extract Class* (SRP) |
+| **Shotgun Surgery** | **Uma mudança** exige editar **muitas classes** | *Move Method/Field*, concentrar a responsabilidade |
+| **Parallel Inheritance Hierarchies** | Criar subclasse em uma hierarquia obriga a criar em outra | Unir hierarquias, Bridge |
+
+> Dica para memorizar: *Divergent Change* = 1 classe, N motivos. *Shotgun Surgery* = 1 motivo, N classes.
+
+## 4. Dispensables
+
+| Smell | Sinal | Refatoração |
+|---|---|---|
+| **Duplicate Code** | Lógica copiada e colada | *Extract Method*, DRY |
+| **Dead Code** | Código nunca executado | Remover (o Git guarda o histórico) |
+| **Comments** em excesso | Comentário explicando código confuso | Renomear, extrair método com nome claro |
+| **Lazy Class** | Classe que quase não faz nada | *Inline Class* |
+| **Speculative Generality** | Abstrações "para o futuro" nunca usadas | Remover (YAGNI) |
+| **Data Class** | Só getters/setters, sem comportamento | Mover comportamento para a classe |
+
+## Como lidar com code smells
+
+1. **Detecte:** revisão de código, ESLint, SonarQube (aponta smells e dívida técnica);
+2. **Garanta testes** antes de refatorar;
+3. **Refatore em pequenos passos** (catálogo de refatorações de Fowler);
+4. **Regra do escoteiro:** deixe o código um pouco melhor do que encontrou.
+
+---
+
+## ✅ Pontos-chave
+
+- Code smell é **indício**, não bug.
+- 5 categorias: **Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers**.
+- Muitos smells são resolvidos com SOLID e padrões GoF (Strategy, Facade, Adapter).
+- Refatore com testes e em pequenos passos.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Qual a diferença entre Divergent Change e Shotgun Surgery?</summary>
+Divergent Change: uma classe muda por vários motivos diferentes. Shotgun Surgery: uma única mudança exige alterar várias classes.
+</details>
+
+<details><summary>2. O que é Feature Envy?</summary>
+Um método que usa mais os dados de outra classe do que da sua própria — indica que ele provavelmente deveria estar na outra classe.
+</details>
+
+<details><summary>3. Como resolver Primitive Obsession?</summary>
+Substituindo primitivos por objetos de valor (Value Objects) como Cpf, Email, Dinheiro, que encapsulam validação e comportamento.
+</details>
+
+<details><summary>4. Qual smell um switch por tipo repetido em vários lugares representa e como resolver?</summary>
+Switch Statements (OO Abuser); resolve-se com polimorfismo, Strategy ou State.
+</details>
+
+<details><summary>5. O que é Message Chain e qual lei ele viola?</summary>
+Uma cadeia de chamadas como a.getB().getC().getD(); viola a Lei de Demeter ("fale só com seus vizinhos imediatos").
+</details>
+
+## 🔗 Relacionadas
+
+- [Princípios SOLID](../01%20Fundamentos%20em%20arquitetura%20de%20software/02%20Principios%20Solid.md)
+- [02 GoF — catálogo de padrões](02%20GoF%20catalogo%20de%20padroes.md)
+
+## 📚 Referências
+
+- FOWLER, M. *Refatoração*. 2ª ed. Novatec, 2020.
+- Refactoring.Guru — https://refactoring.guru/pt-br/refactoring/smells

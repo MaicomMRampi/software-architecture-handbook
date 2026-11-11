@@ -1,80 +1,160 @@
-# 📖 Metodologia na Construção do Software no Módulo 2
+# 🔄 Metodologias na Construção do Software
 
-As metodologias de desenvolvimento ditam como os requisitos do sistema são elicitados, documentados, priorizados e transformados em software funcional ao longo do tempo.
+> **Módulo 02 · Requisitos** — Cascata, Ágil (Scrum, Kanban, XP) e Espiral: como cada um lida com requisitos e com a arquitetura.
 
 ---
 
-## 🌊 1. Modelo em Cascata (Waterfall)
+As metodologias definem **como os requisitos são elicitados, documentados, priorizados e transformados em software** ao longo do tempo — e, por consequência, quando e como as decisões arquiteturais são tomadas.
 
-O modelo tradicional e sequencial organiza o desenvolvimento em fases rígidas que devem ser concluídas sequencialmente antes da etapa seguinte iniciar.
+## 1. Modelo em Cascata (Waterfall)
+
+Fases sequenciais e rígidas; uma só começa quando a anterior termina.
 
 ```mermaid
 graph TD
-    A[Requisitos] --> B[Design / Arquitetura]
-    B --> C[Implementação / Código]
-    C --> D[Verificação / Testes]
-    D --> E[Manutenção]
+    A[Requisitos] --> B[Design / Arquitetura] --> C[Implementação] --> D[Testes] --> E[Implantação e manutenção]
 ```
 
-*Impacto nos Requisitos (Módulo 2)*: Exige especificação massiva adiantada (Big Design Up Front). Requisitos congelados evitam escopo aberto, mas geram alto risco caso as necessidades do negócio mudem durante o projeto.
+- **Requisitos:** especificação completa no início (BDUF). Requisitos "congelados" evitam escopo aberto, mas geram alto risco se o negócio mudar.
+- **Pontos fortes:** documentação rica, prazos e custos previsíveis no início, adequado a contratos de escopo fechado e ambientes regulados.
+- **Pontos fracos:** pouca flexibilidade; o cliente só vê o software no final; erros de requisito descobertos tarde custam caro.
 
-*Pontos Fortes*: Documentação rica, estimativas de prazo e custo previsíveis no início.
+> **Modelo V:** variação da cascata em que cada fase de especificação tem uma fase de teste correspondente (requisitos ↔ teste de aceitação, design ↔ teste de integração, código ↔ teste unitário).
 
-*Pontos Fracos*: Pouca flexibilidade para mudanças; validação do software com o cliente ocorre apenas no final.
+---
 
-# 🏃 2. Desenvolvimento Ágil (Agile)
+## 2. Desenvolvimento Ágil
 
-O Manifesto Ágil prioriza software em funcionamento, colaboração e resposta rápida a mudanças em detrimento de documentação extensa e planos engessados.
+### Manifesto Ágil (2001) — valoriza mais
 
-## 🔄 Scrum
-Framework focado em entregas incrementais dentro de intervalos de tempo fixos chamados Sprints (geralmente de 1 a 4 semanas).
+- **Indivíduos e interações** mais que processos e ferramentas;
+- **Software em funcionamento** mais que documentação abrangente;
+- **Colaboração com o cliente** mais que negociação de contratos;
+- **Responder a mudanças** mais que seguir um plano.
 
-Papéis:
+> "Mais que" não significa "em vez de": os itens da direita também têm valor.
 
-*Product Owner (PO)*: Representa o negócio e prioriza os requisitos no Product Backlog.
+### 2.1 Scrum
 
-*Scrum Master*: Facilita o processo e remove impedimentos da equipe.
+Framework de entregas incrementais em **sprints** de duração fixa (1 a 4 semanas).
 
-*Time de Desenvolvimento*: Múltiplas especialidades focadas na entrega do incremento.
+| Elemento | Itens |
+|---|---|
+| **Papéis** | Product Owner (prioriza o backlog, representa o negócio) · Scrum Master (facilita e remove impedimentos) · Developers (time multidisciplinar) |
+| **Eventos** | Sprint · Sprint Planning · Daily Scrum (15 min) · Sprint Review · Sprint Retrospective |
+| **Artefatos** | Product Backlog · Sprint Backlog · Incremento |
+| **Compromissos** | Meta do produto · Meta da sprint · Definition of Done |
 
-*Eventos Principais*: Sprint Planning, Daily Scrum, Sprint Review e Retrospectiva.
+**Requisitos:** detalhados como **user stories** no backlog, repriorizadas a cada sprint.
 
-*Impacto nos Requisitos (Módulo 2)*: Os requisitos são detalhados na forma de User Stories dinâmicas no backlog, que podem ser reordenadas a cada Sprint conforme a prioridade da empresa muda.
+```text
+Como <cliente>, quero <pagar com Pix> para <concluir a compra sem cartão>.
 
-# 📋 Kanban
+Critérios de aceitação (Gherkin):
+  Dado um carrinho com itens
+  Quando escolho pagar com Pix
+  Então vejo um QR Code válido por 30 minutos
+```
 
-Método visual de gestão focado na melhoria contínua e no fluxo contínuo de trabalho (sem Sprints de tempo fixo).
+**INVEST** — boas user stories são: **I**ndependentes, **N**egociáveis, **V**aliosas, **E**stimáveis, pequenas (**S**mall) e **T**estáveis.
 
-*Quadro Kanban*: Visualização do estado das tarefas (ex: A Fazer, Em Progresso, Em Teste, Concluído).
+> ⚠️ RNFs/ASRs costumam se perder no backlog. Registre-os como **critérios de aceitação**, na **Definition of Done** ou como itens técnicos (*enablers*).
 
-*Limite de WIP (Work in Progress)*: Restringe a quantidade de itens simultâneos em cada etapa para evidenciar gargalos e evitar sobrecarga da equipe.
+### 2.2 Kanban
 
-*Impacto nos Requisitos (Módulo 2)*: Mudanças de prioridade entram diretamente na fila de entrada sem necessidade de aguardar um novo ciclo de planejamento.
+Método visual de **fluxo contínuo**, sem sprints fixas.
 
-# 🌀 3. Desenvolvimento Espiral (Spiral Model)
+- **Quadro:** A fazer → Em progresso → Em teste → Concluído;
+- **Limite de WIP:** restringe itens simultâneos por coluna para evidenciar gargalos;
+- **Métricas:** *lead time*, *cycle time*, *throughput*, diagrama de fluxo cumulativo (CFD);
+- **Requisitos:** mudanças de prioridade entram direto na fila, sem esperar novo ciclo.
 
+Ideal para sustentação, operações e times com demanda imprevisível.
+
+### 2.3 XP (Extreme Programming)
+
+Foco em **práticas técnicas**: TDD, programação em par, integração contínua, refatoração, design simples, releases pequenas. É a base técnica que permite a **arquitetura emergente/evolutiva** sem degradação.
+
+### Scrum × Kanban
+
+| | Scrum | Kanban |
+|---|---|---|
+| Cadência | Sprints fixas | Fluxo contínuo |
+| Papéis | PO, SM, Developers | Não prescreve |
+| Mudanças | Ao fim da sprint | A qualquer momento |
+| Métrica principal | Velocidade | Lead/cycle time |
+
+---
+
+## 3. Modelo Espiral (Boehm, 1986)
+
+Iterativo e **orientado a riscos**: cada volta da espiral passa por quatro quadrantes.
+
+```mermaid
 graph TD
-    Q1[1. Determinar Objetivos] --> Q2[2. Análise e Mitigação de Riscos]
-    Q2 --> Q3[3. Desenvolvimento e Validação]
-    Q3 --> Q4[4. Planejar Próxima Fase]
+    Q1[1. Determinar objetivos, alternativas e restrições] --> Q2[2. Analisar e mitigar riscos - protótipos]
+    Q2 --> Q3[3. Desenvolver e validar]
+    Q3 --> Q4[4. Planejar a próxima volta]
     Q4 --> Q1
+```
 
-### 📐 Os 4 Quadrantes do Ciclo Espiral:
+- **Requisitos:** refinados a cada ciclo; requisitos de **alto risco técnico** são validados com protótipos já na primeira volta.
+- **Pontos fortes:** excelente para projetos grandes, caros e arriscados.
+- **Pontos fracos:** exige experiência em análise de riscos; pode ser caro para projetos pequenos.
 
-Determinar Objetivos: Elicitação das metas da iteração, alternativas e restrições.
+---
 
-Análise de Riscos: Identificação, prototipagem e mitigação de pontos críticos que podem inviabilizar o sistema.
+## 4. Comparativo e impacto na arquitetura
 
-Desenvolvimento e Testes: Construção do software e validação da versão atual.
+| | Cascata | Ágil | Espiral |
+|---|---|---|---|
+| Requisitos | Fixos no início | Evoluem a cada iteração | Refinados por ciclo, guiados por risco |
+| Arquitetura | Definida antes (BDUF) | Intencional + emergente | Riscos arquiteturais validados cedo |
+| Feedback do cliente | No final | Contínuo | A cada volta |
+| Ideal para | Escopo estável, regulado | Produtos digitais, incerteza | Projetos grandes e de alto risco |
 
-Planejamento: Avaliação dos resultados pelo cliente e preparação da próxima volta na espiral.
+---
 
-Impacto nos Requisitos (Módulo 2): Os requisitos arquiteturais e de negócio são refinados continuamente a cada ciclo. Se um requisito trouxer alto risco técnico, ele é validado por um protótipo na primeira volta da espiral.
+## 5. Analogias
 
-# 🚗 Analogia
+- **Cascata:** construir uma ferrovia inteira e só descobrir se o trem funciona no dia da inauguração, 5 anos depois.
+- **Ágil:** entregar patinete → bicicleta → moto → carro; o cliente já usa a bicicleta na semana 2 e valida se resolve o deslocamento.
+- **Espiral:** foguete — primeiro uma maquete para testar aerodinâmica, depois um motor experimental para testar riscos de explosão, e só então o produto final.
 
-*Modelo em Cascata*: Projetar do zero uma ferrovia inteira. Você escreve o projeto completo, assenta todos os trilhos, constrói a locomotiva e só descobre se o trem funciona no dia do término da obra, 5 anos depois.
+---
 
-*Desenvolvimento Ágil (Scrum/Kanban)*: Entregar primeiro um patinete, depois evoluir para uma bicicleta, depois para uma moto e finalmente um carro. O cliente usa a bicicleta na semana 2 e valida se ela resolve o deslocamento.
+## ✅ Pontos-chave
 
-*Desenvolvimento Espiral*: Construir o protótipo de um foguete espacial. Antes de colocar combustível, você constrói uma maquete (Ciclo 1) para testar a aerodinâmica; depois um motor experimental (Ciclo 2) para testar riscos de explosão; e só avança para o produto final após eliminar os riscos de cada etapa.
+- Cascata: sequencial, previsível, pouco flexível.
+- Ágil: incremental; Scrum (sprints, papéis) e Kanban (fluxo, WIP); XP traz as práticas técnicas.
+- Espiral: iterativo e guiado por riscos.
+- Em métodos ágeis, garanta que os **ASRs** não se percam no backlog.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Quais são os três papéis do Scrum?</summary>
+Product Owner, Scrum Master e Developers.
+</details>
+
+<details><summary>2. Para que serve o limite de WIP no Kanban?</summary>
+Limitar o trabalho simultâneo em cada etapa, expondo gargalos e melhorando o fluxo e o tempo de entrega.
+</details>
+
+<details><summary>3. Qual a principal característica do modelo espiral?</summary>
+Ser orientado a riscos: cada iteração começa identificando e mitigando os maiores riscos, frequentemente via protótipos.
+</details>
+
+<details><summary>4. Como garantir requisitos não funcionais em times ágeis?</summary>
+Incluindo-os como critérios de aceitação, na Definition of Done, como enablers técnicos no backlog e automatizando sua verificação (fitness functions).
+</details>
+
+## 🔗 Relacionadas
+
+- [Arquiteturas modernas (BDUF, emergente, evolutiva)](../01%20Fundamentos%20em%20arquitetura%20de%20software/04%20Arquiteturas%20modernas.md)
+- [01 Requisitos arquiteturais](01%20Introducao.md)
+
+## 📚 Referências
+
+- SCHWABER, K.; SUTHERLAND, J. *The Scrum Guide*, 2020. https://scrumguides.org
+- BOEHM, B. *A Spiral Model of Software Development and Enhancement*. IEEE Computer, 1988.
+- ANDERSON, D. *Kanban*. Blue Hole Press, 2010.

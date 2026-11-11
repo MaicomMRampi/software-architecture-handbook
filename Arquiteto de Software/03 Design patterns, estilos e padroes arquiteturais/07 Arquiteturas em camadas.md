@@ -1,4 +1,6 @@
-# Arquiteturas em Camadas
+# 🧅 Arquiteturas em Camadas: Hexagonal, Onion e Clean
+
+> **Módulo 03 · Design Patterns** — Arquiteturas que protegem as regras de negócio da infraestrutura por meio da inversão de dependência.
 
 As arquiteturas em camadas são formas de organizar uma aplicação separando suas responsabilidades.
 
@@ -608,3 +610,86 @@ Da mesma forma, uma aplicação bem estruturada deve conseguir trocar algumas te
 > **O negócio deve ser mais importante do que a tecnologia utilizada para executá-lo.**
 
 Essa é uma das ideias fundamentais por trás da Arquitetura Hexagonal, Onion Architecture e Clean Architecture.
+
+---
+
+## Estrutura de pastas de exemplo (Clean / Hexagonal em Node.js)
+
+```text
+src/
+├── domain/                 # entidades e regras puras (sem dependências externas)
+│   ├── entities/Pedido.ts
+│   └── ports/PedidoRepository.ts      ← porta (interface)
+├── application/            # casos de uso
+│   └── use-cases/CriarPedido.ts
+├── infra/                  # adaptadores de saída
+│   ├── database/PrismaPedidoRepository.ts   ← implementa a porta
+│   └── payment/StripeGateway.ts
+└── interfaces/             # adaptadores de entrada
+    └── http/PedidoController.ts
+```
+
+```ts
+// application/use-cases/CriarPedido.ts — depende só da porta
+export class CriarPedido {
+  constructor(private repo: PedidoRepository) {}
+  async executar(dados: NovoPedidoDTO) {
+    const pedido = Pedido.criar(dados);   // regra de negócio no domínio
+    await this.repo.salvar(pedido);
+    return pedido;
+  }
+}
+```
+
+### Relação com DDD
+
+Essas arquiteturas combinam bem com **Domain-Driven Design**: entidades, *value objects*, agregados e serviços de domínio ficam no centro; repositórios são portas; *bounded contexts* delimitam módulos ou microsserviços.
+
+### Quando **não** usar
+
+Para CRUDs simples ou protótipos, o custo de interfaces, DTOs e mapeamentos pode ser maior que o benefício. Uma arquitetura em camadas tradicional é suficiente.
+
+---
+
+## ✅ Pontos-chave
+
+- Objetivo comum: **proteger o domínio** de frameworks, bancos e APIs externas.
+- **Hexagonal:** portas (interfaces) e adaptadores (implementações), entrada e saída.
+- **Onion:** camadas concêntricas — domínio no centro, infraestrutura fora.
+- **Clean:** Entities → Use Cases → Interface Adapters → Frameworks.
+- **Regra de dependência:** as dependências sempre apontam **para dentro** (DIP).
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. O que é a regra de dependência da Clean Architecture?</summary>
+O código das camadas internas não pode conhecer nada das externas; dependências de código-fonte só apontam para dentro, em direção às regras de negócio.
+</details>
+
+<details><summary>2. O que são portas e adaptadores?</summary>
+Portas são interfaces definidas pelo núcleo da aplicação (ex.: PedidoRepository); adaptadores são implementações concretas que conectam o núcleo ao mundo externo (ex.: repositório Prisma, controller HTTP).
+</details>
+
+<details><summary>3. Qual princípio SOLID sustenta essas arquiteturas?</summary>
+Dependency Inversion Principle (DIP).
+</details>
+
+<details><summary>4. Qual o benefício para testes?</summary>
+Os casos de uso podem ser testados com implementações falsas das portas (em memória), sem banco, rede ou framework.
+</details>
+
+<details><summary>5. Quando essas arquiteturas podem ser exagero?</summary>
+Em CRUDs simples, protótipos e MVPs com pouca regra de negócio, onde as abstrações custam mais do que protegem.
+</details>
+
+## 🔗 Relacionadas
+
+- [Princípios SOLID (DIP)](../01%20Fundamentos%20em%20arquitetura%20de%20software/02%20Principios%20Solid.md)
+- [04 GoF estruturais (Adapter)](04%20GoF%20padroes%20estruturais.md)
+- [06 MVC, MVP, MVVM](06%20Padr%C3%B5es%20Arquiteturais.md)
+
+## 📚 Referências
+
+- COCKBURN, A. *Hexagonal Architecture*, 2005. https://alistair.cockburn.us/hexagonal-architecture/
+- PALERMO, J. *The Onion Architecture*, 2008.
+- MARTIN, R. C. *Arquitetura Limpa*. Alta Books, 2019.
+- EVANS, E. *Domain-Driven Design*. Alta Books, 2016.

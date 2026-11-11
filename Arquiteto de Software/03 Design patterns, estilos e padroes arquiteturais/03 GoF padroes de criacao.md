@@ -1,4 +1,6 @@
-# GoF — Padrões de Criação
+# 🏭 GoF — Padrões de Criação
+
+> **Módulo 03 · Design Patterns** — Singleton, Builder, Factory Method, Abstract Factory e Prototype: como controlar e desacoplar a criação de objetos.
 
 Os **Padrões de Criação (Creational Patterns)** fazem parte dos 23 padrões descritos pelo livro *Design Patterns: Elements of Reusable Object-Oriented Software*, desenvolvido pelo **Gang of Four (GoF)**.
 
@@ -1164,4 +1166,61 @@ Instância única compartilhada
 Singleton
 ```
 
-A aplicação consciente desses padrões pode contribuir para sistemas mais **flexíveis, testáveis, manut**
+A aplicação consciente desses padrões pode contribuir para sistemas mais **flexíveis, testáveis, manuteníveis e fáceis de evoluir**.
+
+---
+
+# 5. Prototype (complemento)
+
+Cria novos objetos **clonando** uma instância existente, em vez de construir do zero. Útil quando a criação é cara ou a configuração inicial é complexa.
+
+```js
+const relatorioBase = { titulo: 'Vendas', filtros: { regiao: 'Sul', ano: 2026 } };
+
+// structuredClone faz cópia profunda
+const copia = structuredClone(relatorioBase);
+copia.filtros.regiao = 'Norte'; // não altera o original
+```
+
+> ⚠️ Atenção à diferença entre **cópia rasa** (`{ ...obj }`, objetos internos continuam compartilhados) e **cópia profunda** (`structuredClone`).
+
+Em JavaScript, a própria linguagem é baseada em protótipos (`Object.create(proto)`).
+
+---
+
+## ✅ Pontos-chave
+
+- Padrões de criação **desacoplam** o código cliente das classes concretas.
+- **Singleton**: uma instância — use com moderação (estado global, dificulta testes).
+- **Builder**: objetos complexos montados passo a passo, interface fluente.
+- **Factory Method**: decide qual objeto criar. **Abstract Factory**: famílias compatíveis.
+- **Prototype**: clonar em vez de construir.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Por que o Singleton é considerado por muitos um antipadrão?</summary>
+Porque introduz estado global, esconde dependências, dificulta testes (mocks) e concorrência.
+</details>
+
+<details><summary>2. Que problema o Builder resolve?</summary>
+O construtor telescópico (muitos parâmetros, vários opcionais), tornando a criação legível e permitindo validação centralizada no build().
+</details>
+
+<details><summary>3. Diferença entre Factory Method e Abstract Factory?</summary>
+Factory Method decide qual produto criar (um produto); Abstract Factory cria famílias de produtos relacionados que precisam ser compatíveis entre si.
+</details>
+
+<details><summary>4. Qual cuidado ao implementar Prototype?</summary>
+Garantir cópia profunda dos objetos internos mutáveis, para que o clone não compartilhe estado com o original.
+</details>
+
+## 🔗 Relacionadas
+
+- [02 GoF — catálogo de padrões](02%20GoF%20catalogo%20de%20padroes.md)
+- [04 GoF — padrões estruturais](04%20GoF%20padroes%20estruturais.md)
+- [Princípios SOLID](../01%20Fundamentos%20em%20arquitetura%20de%20software/02%20Principios%20Solid.md)
+
+## 📚 Referências
+
+- GAMMA, E. et al. *Padrões de Projeto*. Bookman, 2000.
+- Refactoring.Guru — https://refactoring.guru/pt-br/design-patterns/creational-patterns

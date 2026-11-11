@@ -1,85 +1,156 @@
-# 📖 Gerenciamento de Riscos em Arquitetura de Software
+# ⚠️ Gerenciamento de Riscos em Arquitetura
 
-## 🎯 1. Conceito: Riscos vs. Oportunidades
-
-No gerenciamento de projetos e arquitetura de software, lidamos constantemente com incertezas:
-
-* **Risco:** Evento incerto que, se ocorrer, provoca impactos **negativos** (prejuízos financeiros, quedas de serviço, perda de dados ou danos à reputação).
-* **Oportunidade:** Evento incerto que, se concretizado, gera impactos **positivos** (redução de custos, ganho de desempenho ou entrega antecipada).
+> **Módulo 01 · Fundamentos** — Identificar, classificar e tratar riscos técnicos, de projeto e organizacionais: matriz probabilidade × impacto, ROAM e plano 5W2H.
 
 ---
 
-## ⚠️ 2. Tipos de Riscos
+## 1. Risco × Oportunidade
+
+| | Risco | Oportunidade |
+|---|---|---|
+| **Definição** | Evento incerto que, se ocorrer, gera impacto **negativo** | Evento incerto que, se ocorrer, gera impacto **positivo** |
+| **Exemplos** | Queda do serviço, perda de dados, vazamento, atraso | Redução de custo, ganho de desempenho, entrega antecipada |
+
+> Risco ≠ problema. **Risco** é algo que *pode* acontecer; **problema** (*issue*) é algo que *já* aconteceu.
+
+---
+
+## 2. Tipos de riscos
 
 ```mermaid
 graph TD
-    R[Riscos no Desenvolvimento] --> RT[Riscos Técnicos]
-    R --> RP[Riscos de Projeto]
-    R --> RO[Riscos Organizacionais]
-
-    RT -->|Exemplo| RT1[Falha de escalabilidade / Gargalo de hardware]
-    RP -->|Exemplo| RP1[Estouro de prazo / Alteração desordenada de escopo]
-    RO -->|Exemplo| RO1[Corte de orçamento / Mudança de prioridade da empresa]
+    R[Riscos] --> RT[Técnicos]
+    R --> RP[De projeto]
+    R --> RO[Organizacionais]
+    RT --> RT1[Escalabilidade, segurança, dependências]
+    RP --> RP1[Prazo, escopo, estimativas, pessoas]
+    RO --> RO1[Orçamento, prioridades, reestruturação]
 ```
 
-**Riscos Técnicos**: Falhas de arquitetura, incompatibilidade de bibliotecas, ausência de escalabilidade e falhas de segurança.
+| Tipo | Exemplos |
+|---|---|
+| **Técnicos** | Gargalo de escalabilidade, biblioteca descontinuada, falha de segurança, ponto único de falha, tecnologia nova sem domínio do time |
+| **De projeto** | Estimativas erradas, mudança desordenada de escopo, dependência de pessoa-chave (*bus factor*) |
+| **Organizacionais** | Corte de orçamento, fusão, mudança de prioridade estratégica, troca de fornecedor |
+| **Externos / regulatórios** | Nova lei (LGPD), mudança de preço do provedor de nuvem, falha de terceiro |
 
-**Riscos de Projeto**: Problemas na condução das entregas, estimativas incorretas de prazos e alocação inadequada de pessoas.
+---
 
-**Riscos Organizacionais**: Impactos vindos da gestão estratégica da empresa, como fusões, restrições financeiras ou reestruturação de times.
+## 3. Como identificar riscos
 
-### 🔍 3. Como Identificar Riscos na Arquitetura
-O arquiteto atua preventivamente para evitar falhas em produção por meio do mapeamento do sistema e uso de ferramentas analíticas:
+- **Análise SWOT (FOFA):** Forças e Fraquezas (internas) × Oportunidades e Ameaças (externas);
+- **Diagramas de fluxo e casos de uso:** seguir o caminho da requisição para encontrar gargalos, integrações frágeis e **SPOFs** (*Single Points of Failure*);
+- **Risk storming** (Richards & Ford): colaborativo — cada participante marca riscos no diagrama da arquitetura individualmente, depois o grupo consolida e discute;
+- **Premissas não validadas** (ver [07 Processo decisório](07%20Conduzindo%20um%20processo%20decis%C3%B3rio.md)): toda premissa é um risco em potencial;
+- **Threat modeling (STRIDE)** para riscos de segurança;
+- **Lições aprendidas e post-mortems** de incidentes anteriores.
 
-### 🛠️ Ferramentas de Identificação:
-Análise SWOT (FOFA): Estrutura que avalia Forças (Strengths) e Fraquezas (Weaknesses) internas da arquitetura, junto às Oportunidades (Opportunities) e Ameaças (Threats) externas.
+---
 
-Diagramas de Fluxo e Casos de Uso: Mapeamento do caminho que as requisições e dados percorrem para identificar gargalos de processamento, falhas de integração com APIs externas e Pontos Únicos de Falha (SPOF - Single Point of Failure).
+## 4. Classificação: Probabilidade × Impacto
 
-### 📊 4. Classificação de Riscos
-A priorização de um risco é determinada através da combinação de duas variáveis fundamentais:
+```text
+Nível do risco = Probabilidade × Impacto
+```
 
-Nivel do Risco = Probabilidade x Impacto
+- **Probabilidade (1–5):** chance de ocorrer (histórico, complexidade, dados).
+- **Impacto (1–5):** severidade financeira, operacional ou de reputação.
 
-Probabilidade de Ocorrência: A chance estimada de o evento acontecer (avaliada pelo histórico de incidentes, complexidade técnica e dados estatísticos). Escala de 1 (Baixa) a 5 (Alta).
+### Matriz de riscos
 
-Impacto ou Consequência: A severidade dos prejuízos operacionais, financeiros ou reputacionais caso o evento se concretize. Escala: Insignificante, Moderado, Crítico/Catastrófico.
+| Probabilidade ↓ / Impacto → | 1 Insignificante | 2 Baixo | 3 Moderado | 4 Alto | 5 Catastrófico |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **5 Quase certo** | 5 🟡 | 10 🟠 | 15 🔴 | 20 🔴 | 25 🔴 |
+| **4 Provável** | 4 🟢 | 8 🟡 | 12 🟠 | 16 🔴 | 20 🔴 |
+| **3 Possível** | 3 🟢 | 6 🟡 | 9 🟠 | 12 🟠 | 15 🔴 |
+| **2 Improvável** | 2 🟢 | 4 🟢 | 6 🟡 | 8 🟡 | 10 🟠 |
+| **1 Raro** | 1 🟢 | 2 🟢 | 3 🟢 | 4 🟢 | 5 🟡 |
 
-### 🛡️ 5. Tratamento de Riscos com a Ferramenta ROAM
-Após a identificação e classificação, utiliza-se a abordagem ROAM para definir o direcionamento técnico de cada risco:
+🟢 baixo · 🟡 médio · 🟠 alto · 🔴 crítico — trate primeiro os vermelhos.
 
-R - Resolved (Resolvido): A vulnerabilidade ou falha foi eliminada do projeto por meio de alteração de código ou infraestrutura.
+### Exemplo de registro de riscos
 
-O - Owned (Assumido / Com Dono): O risco não pode ser resolvido imediatamente, mas foi atribuído a um responsável específico para monitoramento contínuo.
+| ID | Risco | P | I | Nível | Tratamento |
+|---|---|:-:|:-:|:-:|---|
+| R1 | Banco único sem réplica (SPOF) | 3 | 5 | 15 🔴 | **Mitigar:** réplica multi-AZ + backup automático |
+| R2 | API de frete externa instável | 4 | 3 | 12 🟠 | **Mitigar:** circuit breaker + cache de cotação |
+| R3 | Só um dev conhece o módulo fiscal | 3 | 4 | 12 🟠 | **Owned:** tech lead responsável por pareamento e documentação |
+| R4 | Lentidão no relatório anual (1×/ano) | 2 | 2 | 4 🟢 | **Aceitar** |
 
-A - Accepted (Aceito): O risco é compreendido, mas o custo financeiro ou operacional para resolvê-lo é superior ao impacto do dano. A equipe aceita as consequências caso ocorra.
+---
 
-M - Mitigated (Mitigado): Ações técnicas são implementadas para reduzir a probabilidade de ocorrência ou atenuar o impacto negativo.
+## 5. Tratamento — ROAM
 
-### 📝 6. Plano de Ação para Mitigação (5W2H)
+Usado no SAFe para dar destino a cada risco:
 
-![alt text](image-1.png)
+| Letra | Significado | Exemplo |
+|---|---|---|
+| **R – Resolved** | Eliminado (o risco deixou de existir) | Trocar a biblioteca descontinuada |
+| **O – Owned** | Não resolvido agora, mas tem **dono** que monitora | Tech lead acompanha o uso de disco semanalmente |
+| **A – Accepted** | Entendido; custo de tratar > impacto | Aceitar lentidão no relatório anual |
+| **M – Mitigated** | Ações reduzem probabilidade ou impacto | Réplica de banco, retries, rate limiting |
 
+Equivalente no PMBOK (riscos negativos): **evitar, transferir** (ex.: seguro, serviço gerenciado), **mitigar, aceitar**.
 
-# 🚗 Analogia
+---
 
-✈️ Piloto de Avião e Planejamento de Voo
-Risco vs. Oportunidade:
+## 6. Plano de ação — 5W2H
 
-Risco: Entrar em uma área de tempestade (evento prejudicial que pode danificar a aeronave).
+![Plano 5W2H](image-1.png)
 
-Oportunidade: Encontrar uma corrente de vento a favor que reduz o tempo de voo e economiza combustível.
+| Pergunta | Significado | Exemplo (R1 — banco sem réplica) |
+|---|---|---|
+| **What** (o quê) | Ação | Configurar réplica Multi-AZ do PostgreSQL |
+| **Why** (por quê) | Justificativa | Eliminar SPOF; RTO alvo < 5 min |
+| **Where** (onde) | Local | AWS RDS, região sa-east-1 |
+| **When** (quando) | Prazo | Até a sprint 14 |
+| **Who** (quem) | Responsável | Time de plataforma (João) |
+| **How** (como) | Método | Terraform + teste de failover em staging |
+| **How much** (quanto) | Custo | +R$ 900/mês |
 
-Diagramas de Fluxo (Checklist pré-voo): O piloto inspecionando cada componente do avião antes da decolagem para encontrar falhas mecânicas preventivamente.
+---
 
-Classificação ROAM no Painel de Controle:
+## 7. Analogia — Piloto de avião
 
-Resolved: Trocar uma peça defeituosa identificada antes da decolagem.
+- **Risco:** tempestade na rota. **Oportunidade:** vento de cauda que economiza combustível.
+- **Checklist pré-voo:** inspeção preventiva (diagramas de fluxo).
+- **ROAM:** *Resolved* = trocar peça defeituosa antes de decolar; *Owned* = copiloto checa combustível a cada 30 min; *Accepted* = leve turbulência; *Mitigated* = desviar da tempestade.
+- **5W2H:** o plano de voo entregue à torre (rota alternativa, comandante, aeroporto de emergência, combustível de reserva).
 
-Owned: Atribuir ao co-piloto a tarefa de checar o nível de combustível a cada 30 minutos.
+---
 
-Accepted: Aceitar uma leve turbulência em altitude de cruzeiro sem alterar a rota original.
+## ✅ Pontos-chave
 
-Mitigated: Desviar ligeiramente o curso da aeronave para contornar a tempestade e minimizar os riscos ao voo.
+- Riscos podem ser técnicos, de projeto, organizacionais ou externos.
+- **Nível = probabilidade × impacto**; priorize os críticos.
+- **ROAM**: Resolved, Owned, Accepted, Mitigated.
+- **5W2H** transforma o tratamento em plano de ação concreto.
+- Gerenciar riscos é contínuo: revise o registro periodicamente.
 
-Plano 5W2H: O plano de voo oficial entregue à torre de controle detalhando a rota alternativa, quem comanda a aeronave, onde pousar em emergências e quanto combustível reserva foi abastecido.
+## ❓ Perguntas de revisão
+
+<details><summary>1. Qual a diferença entre risco e problema?</summary>
+Risco é um evento incerto futuro; problema é algo que já aconteceu e precisa ser resolvido.
+</details>
+
+<details><summary>2. O que significa um risco "Owned" no ROAM?</summary>
+Que ainda não foi resolvido, mas foi atribuído a um responsável que o monitora e age se necessário.
+</details>
+
+<details><summary>3. Um risco com probabilidade 2 e impacto 5 tem qual nível? Como tratar?</summary>
+Nível 10 (alto). Mesmo improvável, o impacto catastrófico justifica mitigação ou plano de contingência (ex.: backup e DR).
+</details>
+
+<details><summary>4. O que é risk storming?</summary>
+Técnica colaborativa em que os participantes identificam riscos individualmente sobre o diagrama da arquitetura e depois consolidam e discutem em grupo.
+</details>
+
+## 🔗 Relacionadas
+
+- [07 Conduzindo um processo decisório](07%20Conduzindo%20um%20processo%20decis%C3%B3rio.md)
+- [Padrões para sistemas distribuídos (circuit breaker, retry)](../03%20Design%20patterns,%20estilos%20e%20padroes%20arquiteturais/08%20Padr%C3%B5es%20para%20sistemas%20distribuidos.md)
+
+## 📚 Referências
+
+- PMI. *PMBOK Guide*. 7ª ed., 2021.
+- RICHARDS, M.; FORD, N. *Fundamentals of Software Architecture* — cap. 20 (Analyzing Architecture Risk).

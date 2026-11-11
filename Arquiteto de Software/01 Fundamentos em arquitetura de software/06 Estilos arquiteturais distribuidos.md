@@ -1,127 +1,208 @@
-# Estilos Arquiteturais Distribuídos
+# 🌐 Estilos Arquiteturais Distribuídos
 
-## 🌐 5.1 Conceitos Gerais, Desafios e Tendências
-
-### 🎯 Conceito Detalhado
-A **Arquitetura Distribuída** divide uma aplicação em múltiplos componentes independentes executados em processos, contêineres ou servidores distintos conectados via rede. Diferente dos monólitos, permite atualizações e implantações (*deploys*) de forma incremental e descentralizada.
+> **Módulo 01 · Fundamentos** — Arquiteturas cujos componentes rodam em processos/servidores separados e se comunicam pela rede: SOA, microsserviços e orientada a eventos.
 
 ---
 
-### 🧱 As 6 Características Fundamentais
+## 1. Conceitos gerais
 
-| Características | Descrição Prática |
-| :--- | :--- |
-| **1. Distribuição** | Módulos e serviços executados em nós/servidores fisicamente separados. |
-| **2. Descentralização** | Responsabilidade de execução e dados divididos entre os serviços (sem ponto único de controle). |
-| **3. Comunicação por Rede** | Troca de dados via protocolos leves (HTTP/REST, gRPC) ou mensagens (Kafka, RabbitMQ). |
-| **4. Tolerância a Falhas** | Resiliência estrutural: a queda de uma parte não derruba a aplicação inteira. |
-| **5. Escalabilidade Horizontal** | Crescimento de capacidade via adição de novas instâncias paralelas (*Scale-Out*). |
-| **6. Heterogeneidade** | Liberdade para adotar linguagens e bancos de dados distintos por serviço (*Polyglot Persistence*). |
+A **arquitetura distribuída** divide a aplicação em componentes independentes, executados em processos, containers ou servidores distintos, conectados via rede. Diferente do monólito, permite **deploys incrementais e descentralizados**.
+
+### As 6 características fundamentais
+
+| Característica | Descrição |
+|---|---|
+| **Distribuição** | Serviços executados em nós fisicamente separados |
+| **Descentralização** | Execução e dados divididos entre serviços, sem ponto único de controle |
+| **Comunicação por rede** | HTTP/REST, gRPC ou mensageria (Kafka, RabbitMQ) |
+| **Tolerância a falhas** | A queda de uma parte não derruba tudo |
+| **Escalabilidade horizontal** | Mais capacidade adicionando instâncias (*scale-out*) |
+| **Heterogeneidade** | Linguagens e bancos diferentes por serviço (*polyglot*) |
+
+### As 8 falácias da computação distribuída (Peter Deutsch / Sun)
+
+Suposições **falsas** que desenvolvedores costumam fazer:
+
+1. A rede é confiável;
+2. A latência é zero;
+3. A largura de banda é infinita;
+4. A rede é segura;
+5. A topologia não muda;
+6. Existe apenas um administrador;
+7. O custo de transporte é zero;
+8. A rede é homogênea.
+
+> Toda arquitetura distribuída precisa ser desenhada assumindo que **a rede vai falhar**: timeouts, retries, circuit breakers, idempotência.
+
+### Desafios
+
+- **Complexidade operacional:** exige observabilidade (logs centralizados, métricas e *distributed tracing*);
+- **Latência de rede:** chamadas remotas são ordens de grandeza mais lentas que chamadas em memória;
+- **Consistência de dados:** vários bancos → consistência eventual, padrão Saga;
+- **Testes e debug:** reproduzir problemas que envolvem vários serviços é difícil.
+
+### Tendências
+
+```mermaid
+graph TD
+    A[Tendências distribuídas] --> B[Serverless: paga por execução]
+    A --> C[Edge computing: processamento perto do usuário]
+    A --> D[Multicloud: reduzir lock-in]
+    A --> E[Arquitetura federada: GraphQL Federation, data mesh]
+```
 
 ---
 
-### ⚠️ Desafios vs. 🔮 Tendências Emersas
+## 2. SOA — Arquitetura Orientada a Serviços
 
-#### Desafios Técnicos:
-* **Complexidade Operacional:** Exige observabilidade avançada (Logs centralizados, Métricas e Tracing Distribuído).
-* **Latência de Rede:** Chamadas via rede introduzem gargalos de tempo inexistentes em chamadas de memória.
-* **Gestão de Estado:** Manter dados consistentes entre múltiplos bancos exige estratégias como Consistência Eventual.
+### Conceito
 
-#### Tendências do Mercado:
+Estilo **corporativo** focado em integrar sistemas da organização por meio de **serviços de negócio reutilizáveis**, normalmente com um barramento central (ESB).
 
 ```mermaid
 graph TD
-    A[Tendências Distribuídas] --> B[Serverless: Pague por execução sem gerenciar servidores]
-    A --> C[Edge Computing: Processamento na ponta para latência próxima a zero]
-    A --> D[Multi-Cloud: Eliminação do Vendor Lock-in distribuindo entre AWS/GCP/Azure]
-    A --> E[Arquitetura Federada: Unificação de leitura sob contratos globais sem centralizar bancos]
+    Client[Web / App / Caixa eletrônico] --> ESB[ESB - Barramento Corporativo]
+    ESB --> S1[Serviço de Contas]
+    ESB --> S2[Serviço Financeiro]
+    ESB --> S3[Serviço de Empréstimos]
 ```
 
-# 🚌 5.2 Arquitetura Orientada a Serviços (SOA)
-🎯 Conceito
-A SOA (Service-Oriented Architecture) é um estilo arquitetural corporativo focado em integrar diferentes sistemas e aplicações de uma organização por meio de serviços de negócio reutilizáveis.
+### O papel do ESB (Enterprise Service Bus)
+
+- **Roteamento:** direciona a chamada ao serviço correto;
+- **Transformação:** converte formatos (ex.: JSON ↔ XML/SOAP);
+- **Orquestração:** compõe vários serviços em um processo de negócio;
+- **Segurança e auditoria:** centraliza controle de acesso e logs.
+
+Tecnologias típicas: SOAP, WSDL, XML, ESBs como MuleSoft, IBM Integration Bus, Oracle Service Bus.
+
+| Vantagens | Desvantagens |
+|---|---|
+| Reuso de serviços em larga escala | ESB vira gargalo e ponto único de falha |
+| Integração de sistemas legados | Governança complexa e pesada |
+| Padronização da comunicação | Lógica de negócio "vaza" para o barramento ("smart pipes") |
+
+---
+
+## 3. Microsserviços
+
+### Conceito
+
+Constrói **uma aplicação** como um conjunto de **pequenos serviços autônomos**, cada um responsável por um domínio de negócio (*bounded context*, do DDD), rodando em seu próprio processo e com deploy independente.
 
 ```mermaid
 graph TD
-    Client[Clientes: Web / App / Caixa Eletrônico] --> ESB[ESB - Barramento Corporativo]
-    ESB -->|Tradução & Roteamento| S1[Serviço de Contas]
-    ESB -->|Tradução & Roteamento| S2[Serviço Financeiro]
-    ESB -->|Tradução & Roteamento| S3[Serviço de Empréstimos]    
+    GW[API Gateway] --> S1[Pedidos]
+    GW --> S2[Usuários]
+    GW --> S3[Pagamentos]
+    S1 --> DB1[(DB Pedidos)]
+    S2 --> DB2[(DB Usuários)]
+    S3 --> DB3[(DB Pagamentos)]
 ```
 
-## 🔀 O Papel do ESB (Enterprise Service Bus)
-O ESB é o middleware centralizador responsável por:
+### Regras de ouro
 
-Roteamento: Direcionar as chamadas para os serviços de destino corretos.
+1. **Database per service:** cada serviço é dono dos seus dados; ninguém acessa o banco de outro.
+2. **Smart endpoints, dumb pipes:** sem ESB; comunicação por HTTP/gRPC ou mensageria leve.
+3. **Deploy independente:** mudar um serviço não exige redeploy dos outros.
+4. **Times autônomos:** um time é dono do serviço do início ao fim (*you build it, you run it*). Relaciona-se com a **Lei de Conway**: a arquitetura reflete a estrutura de comunicação da organização.
 
-Tradução (Transformação): Converter formatos de dados (ex: transformar dados de JSON para XML em tempo de execução).
+### SOA × Microsserviços
 
-Segurança e Auditoria: Centralizar o controle de acesso e o registro de logs de integração.
+| Característica | SOA | Microsserviços |
+|---|---|---|
+| Escopo | Integração da **empresa** | Uma **aplicação** |
+| Comunicação | ESB centralizado ("smart pipes") | Endpoints inteligentes, "dumb pipes" |
+| Dados | Bancos frequentemente compartilhados | Banco por serviço |
+| Protocolos | SOAP/XML, pesados | REST, gRPC, eventos |
+| Granularidade | Serviços maiores | Serviços pequenos, um contexto de negócio |
+| Reuso | Objetivo principal | Prefere desacoplamento a reuso |
 
-### ⚖️ Prós e Contras do SOA
-Vantagens: Reutilização em grande escala de serviços corporativos, facilidade de integração de sistemas legados e padronização da comunicação.
+![SOA x Microsserviços](image.png)
 
-Desvantagens: Alto risco de o ESB se tornar um gargalo de desempenho e um ponto único de falha (Single Point of Failure), além da altíssima complexidade de governança.
+### Vantagens e desvantagens
 
-# 🧩 5.3 Arquitetura de Microsserviços
+| Vantagens | Desvantagens |
+|---|---|
+| Deploy independente e frequente | Perda de transações ACID → consistência eventual, Saga |
+| Escalabilidade por serviço | Alta complexidade operacional (K8s, observabilidade) |
+| Isolamento de falhas | Latência e falhas de rede |
+| Liberdade tecnológica por time | Risco de "monólito distribuído" se mal dividido |
 
-## 🎯 Conceito
+> ⚠️ **Monólito distribuído:** serviços separados que precisam ser implantados juntos ou compartilham banco — você paga o custo de ambos os mundos sem os benefícios.
 
-Estilo focado em construir uma única aplicação como um conjunto de pequenos serviços autônomos. Cada microsserviço é responsável por um domínio de negócio específico e roda em seu próprio processo.
+---
 
-```mermaid
-graph TD
-    GW[API Gateway] --> S1[Microsserviço de Pedidos]
-    GW --> S2[Microsserviço de Usuários]
-    GW --> S3[Microsserviço de Pagamentos]
-    
-    S1 ---> DB1[(DB Pedidos)]
-    S2 ---> DB2[(DB Usuários)]
-    S3 ---> DB3[(DB Pagamentos)]
-```
+## 4. Arquitetura Orientada a Eventos (EDA)
 
-### 🧱 As 3 Regras de Ouro
+### Conceito
 
-Database per Service: Cada microsserviço possui e gerencia seu próprio banco de dados isolado.
-
-Comunicação Descentralizada: Ausência de barramentos pesados (ESB); comunicação via APIs HTTP/REST, gRPC ou mensageria leve.
-
-Deploy Independente: Alterações e implantações em um serviço não impactam a disponibilidade dos demais.
-
-### 🛅 Característica,SOA,Microsserviços
-
-![alt text](image.png)~
-
-### ⚖️ Prós e Contras dos Microsserviços
-
-Vantagens: Altíssima flexibilidade de deploy, escalabilidade cirúrgica por serviço e forte isolamento de falhas.
-
-Desvantagens: Perda de transações ACID locais (exige Consistência Eventual e Saga Pattern), alta complexidade operacional e risco de despadronização entre times.
-
-# ⚡5.4 Arquitetura Orientada a Eventos (EDA) 
-
-### 🎯 Conceito
-
-A Event-Driven Architecture (EDA) é um estilo baseado no processamento assíncrono de notificações de mudança de estado (Eventos). Componentes da aplicação reagem aos eventos gerados no sistema sem dependência direta de tempo ou sincronismo.
+Baseada no processamento **assíncrono** de **eventos** — notificações de que algo aconteceu (mudança de estado). Componentes reagem aos eventos sem depender uns dos outros diretamente.
 
 ```mermaid
 graph LR
-    P[Produtor do Evento] -->|1. Publica Evento 'PedidoCriado'| B[Message Broker / Fila]
-    B -->|2. Consome Evento| C1[Serviço de Estoque]
-    B -->|3. Consome Evento| C2[Serviço de Notificações]
-    B -->|4. Consome Evento| C3[Serviço de Faturamento]
+    P[Pedidos] -->|PedidoCriado| B[Broker]
+    B --> C1[Estoque]
+    B --> C2[Notificações]
+    B --> C3[Faturamento]
 ```
 
-## 🧱 Componentes Principais
+| Componente | Papel |
+|---|---|
+| **Produtor** | Publica o evento; não sabe quem vai consumir |
+| **Broker** | Armazena e distribui os eventos (Kafka, RabbitMQ, SNS/SQS) |
+| **Consumidor** | Reage ao evento executando sua lógica |
 
-Event Producer (Produtor): Emite a notificação de que um fato ocorreu no sistema. Não sabe quem irá consumir a mensagem.
+### Topologias
 
-Event Broker (Intermediário): Middleware que armazena e distribui os eventos (ex: RabbitMQ, Apache Kafka).
+- **Broker (coreografia):** sem coordenador central; cada serviço reage e publica novos eventos. Mais desacoplado, mais difícil de acompanhar o fluxo.
+- **Mediator (orquestração):** um mediador coordena os passos do processo. Mais controle e tratamento de erros, mais acoplamento.
 
-Event Consumer (Consumidor): Escuta o broker e executa ações de negócio assíncronas ao receber o evento.
+| Vantagens | Desvantagens |
+|---|---|
+| Desacoplamento de tempo e espaço | Rastrear fluxos exige *distributed tracing* |
+| Alta escalabilidade e responsividade | Garantia de entrega, ordenação e duplicidade (idempotência) |
+| Resiliência a falhas temporárias dos consumidores | Consistência eventual; debug mais difícil |
 
-## ⚖️ Prós e Contras do EDA
+Ver detalhes em [Arquitetura orientada a eventos](../04%20Arquiteturas%20da%20atualidade/03%20Arquitetura%20orientada%20a%20eventos.md).
 
-Vantagens: Extremo desacoplamento de tempo e espaço, alta capacidade de resposta (responsiveness), alta escalabilidade e resiliência a falhas temporárias dos consumidores.
+---
 
-Desvantagens: Complexidade no rastreamento de fluxos (Distributed Tracing), gerenciamento de estados temporários e garantia de entrega/ordenação de mensagens.
+## ✅ Pontos-chave
+
+- Sistemas distribuídos trocam simplicidade por escalabilidade e autonomia.
+- Lembre das **8 falácias**: a rede falha, tem latência e custa.
+- **SOA**: integração corporativa com ESB. **Microsserviços**: aplicação dividida por domínio, banco por serviço.
+- **EDA**: comunicação assíncrona por eventos; coreografia × orquestração.
+
+## ❓ Perguntas de revisão
+
+<details><summary>1. Cite três das oito falácias da computação distribuída.</summary>
+A rede é confiável; a latência é zero; a largura de banda é infinita (também: a rede é segura, topologia não muda, um administrador, transporte sem custo, rede homogênea).
+</details>
+
+<details><summary>2. Por que o ESB é considerado um risco no SOA?</summary>
+Porque centraliza roteamento e lógica, tornando-se gargalo de desempenho, ponto único de falha e foco de complexidade de governança.
+</details>
+
+<details><summary>3. O que significa "database per service" e qual sua consequência?</summary>
+Cada microsserviço é dono exclusivo de seus dados. Consequência: não há transações ACID entre serviços, exigindo consistência eventual e padrões como Saga.
+</details>
+
+<details><summary>4. Qual a diferença entre coreografia e orquestração em EDA?</summary>
+Na coreografia, cada serviço reage a eventos sem coordenador central. Na orquestração, um mediador controla a sequência de passos do processo.
+</details>
+
+<details><summary>5. O que é um monólito distribuído?</summary>
+Serviços fisicamente separados mas fortemente acoplados (deploy conjunto, banco compartilhado, chamadas síncronas em cadeia) — tem os custos dos microsserviços sem os benefícios.
+</details>
+
+## 🔗 Relacionadas
+
+- [05 Estilo arquitetural monolítico](05%20Estilo%20arquitetural%20monolitico.md)
+- [Padrões para sistemas distribuídos](../03%20Design%20patterns,%20estilos%20e%20padroes%20arquiteturais/08%20Padr%C3%B5es%20para%20sistemas%20distribuidos.md)
+
+## 📚 Referências
+
+- NEWMAN, S. *Building Microservices*. 2ª ed. O'Reilly, 2021.
+- FOWLER, M.; LEWIS, J. *Microservices*. https://martinfowler.com/articles/microservices.html
